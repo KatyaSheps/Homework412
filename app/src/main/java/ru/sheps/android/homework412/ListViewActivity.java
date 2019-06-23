@@ -1,11 +1,11 @@
 package ru.sheps.android.homework412;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
