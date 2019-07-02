@@ -4,11 +4,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PersistableBundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,7 +31,7 @@ public class ListViewActivity extends AppCompatActivity implements SwipeRefreshL
     SharedPreferences mySharedPreferences;
     BaseAdapter listContentAdapter;
     SwipeRefreshLayout mSwipeRefreshLayout;
-    ;
+    ArrayList<Integer> integerArrayList = new ArrayList<Integer>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,20 +39,24 @@ public class ListViewActivity extends AppCompatActivity implements SwipeRefreshL
         setContentView(R.layout.activity_list_view);
 
         ListView list = findViewById(R.id.list);
-
         mySharedPreferences = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
 
         boolean hasVisited = mySharedPreferences.getBoolean("hasVisited", false);
 
         if (!hasVisited) {
             // выводим нужную активность
+           // integerArrayList = savedInstanceState.getIntegerArrayList("my_key");
             SharedPreferences.Editor editor = mySharedPreferences.edit();
-            editor.putBoolean("hasVisited", true);
+     //       for (int i = 0; i < integerArrayList.size(); i++) {
+//        }
+
+                editor.putBoolean("hasVisited", true);
             editor.putString(LARGE_TEXT, getString(R.string.large_text));
             editor.apply();
         }
 
         values = prepareContent();
+//
 
         String[] from = {"Header", "Subheader"};
         int[] to = {R.id.header, R.id.subheader};
@@ -59,7 +65,9 @@ public class ListViewActivity extends AppCompatActivity implements SwipeRefreshL
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
                 values.remove(position);
+                integerArrayList.add (position);
                 listContentAdapter.notifyDataSetChanged();
             }
         });
@@ -106,5 +114,9 @@ public class ListViewActivity extends AppCompatActivity implements SwipeRefreshL
         listContentAdapter.notifyDataSetChanged();
     }
 
-
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+      outState.putIntegerArrayList("my_key", integerArrayList);
+    }
 }
