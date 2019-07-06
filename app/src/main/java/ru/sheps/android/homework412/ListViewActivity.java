@@ -3,18 +3,16 @@ package ru.sheps.android.homework412;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.PersistableBundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.Toast;
 
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
@@ -31,7 +29,7 @@ public class ListViewActivity extends AppCompatActivity implements SwipeRefreshL
     SharedPreferences mySharedPreferences;
     BaseAdapter listContentAdapter;
     SwipeRefreshLayout mSwipeRefreshLayout;
-    ArrayList<Integer> integerArrayList = new ArrayList<Integer>();
+    ArrayList<String> deletedValues = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,18 +42,27 @@ public class ListViewActivity extends AppCompatActivity implements SwipeRefreshL
         boolean hasVisited = mySharedPreferences.getBoolean("hasVisited", false);
 
         if (!hasVisited) {
-            // выводим нужную активность
-           // integerArrayList = savedInstanceState.getIntegerArrayList("my_key");
             SharedPreferences.Editor editor = mySharedPreferences.edit();
-     //       for (int i = 0; i < integerArrayList.size(); i++) {
-//        }
-
-                editor.putBoolean("hasVisited", true);
+            editor.putBoolean("hasVisited", true);
             editor.putString(LARGE_TEXT, getString(R.string.large_text));
             editor.apply();
         }
 
         values = prepareContent();
+        if (savedInstanceState != null) {
+            deletedValues = savedInstanceState.getStringArrayList("my_key");
+        }
+
+        if (deletedValues.size() > 0) {
+            for (int k = 0; k < deletedValues.size(); k++) {
+                for (int i = 0; i < values.size(); i++) {
+                    if (values.get(i).values().iterator().next().equals(deletedValues.get(k))) {
+                        values.remove(i);
+                        break;
+                    }
+                }
+            }
+        }
 //
 
         String[] from = {"Header", "Subheader"};
@@ -65,9 +72,8 @@ public class ListViewActivity extends AppCompatActivity implements SwipeRefreshL
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                deletedValues.add(values.get(position).values().iterator().next());
                 values.remove(position);
-                integerArrayList.add (position);
                 listContentAdapter.notifyDataSetChanged();
             }
         });
@@ -115,8 +121,9 @@ public class ListViewActivity extends AppCompatActivity implements SwipeRefreshL
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-      outState.putIntegerArrayList("my_key", integerArrayList);
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d("privet", "onSaveInstanceState() called with: deletedValues = " + deletedValues.size());
+        outState.putStringArrayList("my_key", deletedValues);
     }
 }
